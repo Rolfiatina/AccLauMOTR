@@ -1,2 +1,2 @@
 # AccLauMOTR
-Менеджер аккаунтов для MMORPG ragnaork сервера MOTR-ONLINE
+Менеджер аккаунтов для MMORPG ragnarock сервера MOTR-ONLINE
