@@ -1,4 +1,4 @@
-// Основной модуль прогрммы для создании иконки системного трея и размещения меню в нём
+// РћСЃРЅРѕРІРЅРѕР№ РјРѕРґСѓР»СЊ РїСЂРѕРіСЂРјРјС‹ РґР»СЏ СЃРѕР·РґР°РЅРёРё РёРєРѕРЅРєРё СЃРёСЃС‚РµРјРЅРѕРіРѕ С‚СЂРµСЏ Рё СЂР°Р·РјРµС‰РµРЅРёСЏ РјРµРЅСЋ РІ РЅС‘Рј
 unit ALM_uMain;
 
 interface
@@ -14,77 +14,77 @@ uses
 
 type
   TALM = class(TObject)
-    // Иконка в системном трее
+    // РРєРѕРЅРєР° РІ СЃРёСЃС‚РµРјРЅРѕРј С‚СЂРµРµ
     FTrayIcon: TTrayIcon;
-    // Выпадающее меню
+    // Р’С‹РїР°РґР°СЋС‰РµРµ РјРµРЅСЋ
     FPopupMenu: TPopupMenu;
-    // Массив аккаунтов
+    // РњР°СЃСЃРёРІ Р°РєРєР°СѓРЅС‚РѕРІ
     FAccountData: array of TAccountData;
-    // Текущий рабочий этап
+    // РўРµРєСѓС‰РёР№ СЂР°Р±РѕС‡РёР№ СЌС‚Р°Рї
     FWorkStage: TWorkStage;
-    // Мастер пароль
+    // РњР°СЃС‚РµСЂ РїР°СЂРѕР»СЊ
     FMasterPSW: string;
-    // Массив хэндлов формы апдейтера
+    // РњР°СЃСЃРёРІ С…СЌРЅРґР»РѕРІ С„РѕСЂРјС‹ Р°РїРґРµР№С‚РµСЂР°
     FHWNDArr: array of HWND;
-    // Массив с часто используемыми аккаунтами
+    // РњР°СЃСЃРёРІ СЃ С‡Р°СЃС‚Рѕ РёСЃРїРѕР»СЊР·СѓРµРјС‹РјРё Р°РєРєР°СѓРЅС‚Р°РјРё
     FFavoriteAccounts: TList;
   private
     procedure TrayIconMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    // Пункт меню "Выход"
+    // РџСѓРЅРєС‚ РјРµРЅСЋ "Р’С‹С…РѕРґ"
     procedure MenuExit(Sender: TObject);
-    // Пункт меню создания пароля
+    // РџСѓРЅРєС‚ РјРµРЅСЋ СЃРѕР·РґР°РЅРёСЏ РїР°СЂРѕР»СЏ
     procedure MenuPSWCreate(Sender: TObject);
-    // Пункт меню ввода пароля
+    // РџСѓРЅРєС‚ РјРµРЅСЋ РІРІРѕРґР° РїР°СЂРѕР»СЏ
     procedure MenuPSWEnter(Sender: TObject);
-    // Пункт меню запуска выбранного аккаунта
+    // РџСѓРЅРєС‚ РјРµРЅСЋ Р·Р°РїСѓСЃРєР° РІС‹Р±СЂР°РЅРЅРѕРіРѕ Р°РєРєР°СѓРЅС‚Р°
     procedure MenuPSWAccounLaunch(Sender: TObject);
-    // Пункт меню ввода нового игрового аккаунта
+    // РџСѓРЅРєС‚ РјРµРЅСЋ РІРІРѕРґР° РЅРѕРІРѕРіРѕ РёРіСЂРѕРІРѕРіРѕ Р°РєРєР°СѓРЅС‚Р°
     procedure MenuPSWAccountNew(Sender: TObject);
-    // Пункт меню редактирования игрового аккаунта
+    // РџСѓРЅРєС‚ РјРµРЅСЋ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РёРіСЂРѕРІРѕРіРѕ Р°РєРєР°СѓРЅС‚Р°
     procedure MenuPSWAccountEdit(Sender: TObject);
-    // Пункт меню удаления игрового аккаунта
+    // РџСѓРЅРєС‚ РјРµРЅСЋ СѓРґР°Р»РµРЅРёСЏ РёРіСЂРѕРІРѕРіРѕ Р°РєРєР°СѓРЅС‚Р°
     procedure MenuPSWAccountDelete(Sender: TObject);
-    // Пункт меню "О программе"
+    // РџСѓРЅРєС‚ РјРµРЅСЋ "Рћ РїСЂРѕРіСЂР°РјРјРµ"
     procedure MenuAbout(Sender: TObject);
-    // Проверка на наличие файла с настройками
+    // РџСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ С„Р°Р№Р»Р° СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё
     function GetIsHaveFile: boolean;
-    // Проверка на введённый мастер пароль
+    // РџСЂРѕРІРµСЂРєР° РЅР° РІРІРµРґС‘РЅРЅС‹Р№ РјР°СЃС‚РµСЂ РїР°СЂРѕР»СЊ
     function GetIsPSWEntered: boolean;
-    // Создание, нифровка и сохранение файла с настройками
+    // РЎРѕР·РґР°РЅРёРµ, РЅРёС„СЂРѕРІРєР° Рё СЃРѕС…СЂР°РЅРµРЅРёРµ С„Р°Р№Р»Р° СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё
     procedure DataFileBuild;
-    // Загрузка файла с настройками и его расшифровка
+    // Р—Р°РіСЂСѓР·РєР° С„Р°Р№Р»Р° СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё Рё РµРіРѕ СЂР°СЃС€РёС„СЂРѕРІРєР°
     procedure DataFileload(aPSW: string);
-    // Прибивание лишних процессов
+    // РџСЂРёР±РёРІР°РЅРёРµ Р»РёС€РЅРёС… РїСЂРѕС†РµСЃСЃРѕРІ
     procedure ProcessKill;
-    // Запуск процесса апдейтера
+    // Р—Р°РїСѓСЃРє РїСЂРѕС†РµСЃСЃР° Р°РїРґРµР№С‚РµСЂР°
     procedure ProcessStart;
-    // Поиск запущенного процесса апдейтера
+    // РџРѕРёСЃРє Р·Р°РїСѓС‰РµРЅРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР° Р°РїРґРµР№С‚РµСЂР°
     procedure ProcessFind;
-    // Проверка на предмет наличия всех хендлов
+    // РџСЂРѕРІРµСЂРєР° РЅР° РїСЂРµРґРјРµС‚ РЅР°Р»РёС‡РёСЏ РІСЃРµС… С…РµРЅРґР»РѕРІ
     function ProcessCheck: boolean;
-    // Запуск выбранного аккаунта
+    // Р—Р°РїСѓСЃРє РІС‹Р±СЂР°РЅРЅРѕРіРѕ Р°РєРєР°СѓРЅС‚Р°
     procedure ProcessLogin(aIndex: integer);
-    // Подготовка массива хэндлов
+    // РџРѕРґРіРѕС‚РѕРІРєР° РјР°СЃСЃРёРІР° С…СЌРЅРґР»РѕРІ
     procedure ProcessPrepare;
-    // Добавление аккаунта в частоиспользуемый список
+    // Р”РѕР±Р°РІР»РµРЅРёРµ Р°РєРєР°СѓРЅС‚Р° РІ С‡Р°СЃС‚РѕРёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ СЃРїРёСЃРѕРє
     procedure FavoriveAccountsAdd(aAccNum: integer);
-    // Удаление аккаунта из списка частоиспользуемых
+    // РЈРґР°Р»РµРЅРёРµ Р°РєРєР°СѓРЅС‚Р° РёР· СЃРїРёСЃРєР° С‡Р°СЃС‚РѕРёСЃРїРѕР»СЊР·СѓРµРјС‹С…
     procedure FavoriveAccountsDelete(aAccNum: integer);
-    // Получить закодированный пароль
+    // РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєРѕРґРёСЂРѕРІР°РЅРЅС‹Р№ РїР°СЂРѕР»СЊ
     function GetEncodePSW(aMasterPSW, aSol: string; aVersion: integer = 1): string;
   public
-    // Проверка этапа
+    // РџСЂРѕРІРµСЂРєР° СЌС‚Р°РїР°
     procedure CheckStage;
   published
     constructor Create; overload; virtual;
     Destructor  Destroy; override;
-    // Запуск
+    // Р—Р°РїСѓСЃРє
     procedure Start;
   public
-    // Проверка на наличие файла с настройками
+    // РџСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ С„Р°Р№Р»Р° СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё
     property IsHaveFile: boolean read GetIsHaveFile;
-    // Проверка на введённый мастер пароль
+    // РџСЂРѕРІРµСЂРєР° РЅР° РІРІРµРґС‘РЅРЅС‹Р№ РјР°СЃС‚РµСЂ РїР°СЂРѕР»СЊ
     property IsPSWEntered: boolean read GetIsPSWEntered;
   end;
 
@@ -114,9 +114,9 @@ begin
   eXMLDoc := TXMLDocument.Create(nil);
   try
     eXMLDoc.Active := True;
-    // Создание корня
+    // РЎРѕР·РґР°РЅРёРµ РєРѕСЂРЅСЏ
     eXMLDoc.DocumentElement := eXMLDoc.CreateNode('DATA', ntElement, '');
-    // Добавление элемента ACCOUNT и наполнение в нём структуру аккаунта
+    // Р”РѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° ACCOUNT Рё РЅР°РїРѕР»РЅРµРЅРёРµ РІ РЅС‘Рј СЃС‚СЂСѓРєС‚СѓСЂСѓ Р°РєРєР°СѓРЅС‚Р°
     for i := low(FAccountData) to high(FAccountData) do
     begin
       eXMLNode := eXMLDoc.DocumentElement.AddChild('ACCOUNT', -1);
@@ -127,9 +127,9 @@ begin
     end;
 
     sXML := '';
-    // Сохранение XML в строковую переменную
+    // РЎРѕС…СЂР°РЅРµРЅРёРµ XML РІ СЃС‚СЂРѕРєРѕРІСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ
     eXMLDoc.SaveToXML(sXML);
-    // Извлечь MD5 из строки с XML
+    // РР·РІР»РµС‡СЊ MD5 РёР· СЃС‚СЂРѕРєРё СЃ XML
     sHash := THashMD5.GetHashString(sXML);
   finally
     if (assigned(eXMLDoc)) then
@@ -141,11 +141,11 @@ begin
   with TStringStream.Create do
   try
     Clear;
-    // Закодировать MD5 и XML мастер паролем
+    // Р—Р°РєРѕРґРёСЂРѕРІР°С‚СЊ MD5 Рё XML РјР°СЃС‚РµСЂ РїР°СЂРѕР»РµРј
     sData := Encode(sHash + sXML, FMasterPSW);
-    // Записать данные в поток
+    // Р—Р°РїРёСЃР°С‚СЊ РґР°РЅРЅС‹Рµ РІ РїРѕС‚РѕРє
     WriteString(sData);
-    // Сохранить файл
+    // РЎРѕС…СЂР°РЅРёС‚СЊ С„Р°Р№Р»
     SaveToFile(GetDataFileName);
   finally
     free;
@@ -171,16 +171,16 @@ var
     sXML := '';
     result := false;
     sPSW := GetEncodePSW(aPSW, cSKey, aVersion);
-    // Расшифровка мастер паролем
+    // Р Р°СЃС€РёС„СЂРѕРІРєР° РјР°СЃС‚РµСЂ РїР°СЂРѕР»РµРј
     sFull := Decode(sDataEnc, sPSW);
-    // Отделяем MD5 из строки
+    // РћС‚РґРµР»СЏРµРј MD5 РёР· СЃС‚СЂРѕРєРё
     sHash := Copy(sFull, 1, 32);
     Delete(sFull, 1, 32);
     if (sHash = THashMD5.GetHashString(sFull)) then
     begin
       sXML := sFull;
       result := true;
-      // Сохраняем пароль по самому актуальному варианту шифрования
+      // РЎРѕС…СЂР°РЅСЏРµРј РїР°СЂРѕР»СЊ РїРѕ СЃР°РјРѕРјСѓ Р°РєС‚СѓР°Р»СЊРЅРѕРјСѓ РІР°СЂРёР°РЅС‚Сѓ С€РёС„СЂРѕРІР°РЅРёСЏ
       FMasterPSW := GetEncodePSW(aPSW, cSKey, cCountAlg);
       FWorkStage := wsWork;
     end;
@@ -192,7 +192,7 @@ begin
   with TStringStream.Create do
   try
     Clear;
-    // Загрузка из файла в поток
+    // Р—Р°РіСЂСѓР·РєР° РёР· С„Р°Р№Р»Р° РІ РїРѕС‚РѕРє
     LoadFromFile(GetDataFileName);
     sDataEnc := ReadString(Size);
     for i := cCountAlg downto 1 do
@@ -200,13 +200,13 @@ begin
       bIsDecoded := DecodeInner(i);
       if (bIsDecoded) then
       begin
-        // Если не последний вариант кодирования то надо пересохранить
+        // Р•СЃР»Рё РЅРµ РїРѕСЃР»РµРґРЅРёР№ РІР°СЂРёР°РЅС‚ РєРѕРґРёСЂРѕРІР°РЅРёСЏ С‚Рѕ РЅР°РґРѕ РїРµСЂРµСЃРѕС…СЂР°РЅРёС‚СЊ
         bIsNeedReSave := (i <> cCountAlg);
         break;
       end;
     end;
 
-    // Если не смогли расшифровать, значит что-то не так
+    // Р•СЃР»Рё РЅРµ СЃРјРѕРіР»Рё СЂР°СЃС€РёС„СЂРѕРІР°С‚СЊ, Р·РЅР°С‡РёС‚ С‡С‚Рѕ-С‚Рѕ РЅРµ С‚Р°Рє
     if (not bIsDecoded) then
     begin
       raise exception.create(rsErrorWrongPassword);
@@ -218,16 +218,16 @@ begin
   eXMLDoc := TXMLDocument.Create(nil);
   try
     eXMLDoc.Active := True;
-    // Загружаем XML
+    // Р—Р°РіСЂСѓР¶Р°РµРј XML
     eXMLDoc.LoadFromXML(sXML);
     eXMLNodeData := eXMLDoc.ChildNodes.FindNode('DATA');
     for I := 0 to eXMLNodeData.ChildNodes.Count - 1 do
     begin
-      // Извлекаем все аккаунты из файла с настройками и сохраняем их к себе
+      // РР·РІР»РµРєР°РµРј РІСЃРµ Р°РєРєР°СѓРЅС‚С‹ РёР· С„Р°Р№Р»Р° СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё Рё СЃРѕС…СЂР°РЅСЏРµРј РёС… Рє СЃРµР±Рµ
       eXMLNodeAccount := eXMLNodeData.ChildNodes.Nodes[i];
       SetLength(FAccountData, length(FAccountData) + 1);
       iIDX := high(FAccountData);
-      // Очистка строк для избежания утечек
+      // РћС‡РёСЃС‚РєР° СЃС‚СЂРѕРє РґР»СЏ РёР·Р±РµР¶Р°РЅРёСЏ СѓС‚РµС‡РµРє
       Finalize(FAccountData[iIDX]);
       FillChar(FAccountData[iIDX], SizeOf(FAccountData[iIDX]), 0);
       with FAccountData[iIDX], eXMLNodeAccount do
@@ -239,7 +239,7 @@ begin
       end;
     end;
 
-    // У нас файл старого образца шифрования то пересохраним с новым
+    // РЈ РЅР°СЃ С„Р°Р№Р» СЃС‚Р°СЂРѕРіРѕ РѕР±СЂР°Р·С†Р° С€РёС„СЂРѕРІР°РЅРёСЏ С‚Рѕ РїРµСЂРµСЃРѕС…СЂР°РЅРёРј СЃ РЅРѕРІС‹Рј
     if (bIsNeedReSave) then
     begin
       DataFileBuild;
@@ -256,13 +256,13 @@ end;
 
 procedure TALM.CheckStage;
 begin
-  // Если режим проверки наличия файла то проверим есть ли он
+  // Р•СЃР»Рё СЂРµР¶РёРј РїСЂРѕРІРµСЂРєРё РЅР°Р»РёС‡РёСЏ С„Р°Р№Р»Р° С‚Рѕ РїСЂРѕРІРµСЂРёРј РµСЃС‚СЊ Р»Рё РѕРЅ
   if (FWorkStage = wsNeedFile) then
   begin
-    // Если файл есть то проверим наличие пароля, если файла нет то чистим пароль
+    // Р•СЃР»Рё С„Р°Р№Р» РµСЃС‚СЊ С‚Рѕ РїСЂРѕРІРµСЂРёРј РЅР°Р»РёС‡РёРµ РїР°СЂРѕР»СЏ, РµСЃР»Рё С„Р°Р№Р»Р° РЅРµС‚ С‚Рѕ С‡РёСЃС‚РёРј РїР°СЂРѕР»СЊ
     if (IsHaveFile) then
     begin
-      // Если пароля нет то ставим этап требования ввода пароля, а если есть то загружаем данные
+      // Р•СЃР»Рё РїР°СЂРѕР»СЏ РЅРµС‚ С‚Рѕ СЃС‚Р°РІРёРј СЌС‚Р°Рї С‚СЂРµР±РѕРІР°РЅРёСЏ РІРІРѕРґР° РїР°СЂРѕР»СЏ, Р° РµСЃР»Рё РµСЃС‚СЊ С‚Рѕ Р·Р°РіСЂСѓР¶Р°РµРј РґР°РЅРЅС‹Рµ
       if (FMasterPSW = '') then
       begin
         FWorkStage := wsNeedPSW;
@@ -317,14 +317,14 @@ var
   iIDX: integer;
 begin
   iIDX := FFavoriteAccounts.IndexOf(pointer(aAccNum));
-  // Если аккаунт уже в избранном то удаляем его
+  // Р•СЃР»Рё Р°РєРєР°СѓРЅС‚ СѓР¶Рµ РІ РёР·Р±СЂР°РЅРЅРѕРј С‚Рѕ СѓРґР°Р»СЏРµРј РµРіРѕ
   if (iIDX <> -1) then
   begin
     FFavoriteAccounts.delete(iIDX);
   end;
-  // Добавлем аккаунт в начало списка
+  // Р”РѕР±Р°РІР»РµРј Р°РєРєР°СѓРЅС‚ РІ РЅР°С‡Р°Р»Рѕ СЃРїРёСЃРєР°
   FFavoriteAccounts.insert(0, pointer(aAccNum));
-  // Если вылезли за границы максимально возможного списка избранных то удаляем последний
+  // Р•СЃР»Рё РІС‹Р»РµР·Р»Рё Р·Р° РіСЂР°РЅРёС†С‹ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅРѕРіРѕ СЃРїРёСЃРєР° РёР·Р±СЂР°РЅРЅС‹С… С‚Рѕ СѓРґР°Р»СЏРµРј РїРѕСЃР»РµРґРЅРёР№
   if (FFavoriteAccounts.Count > cFavoriveAccountsCountMax) then
   begin
     FFavoriteAccounts.delete(FFavoriteAccounts.Count - 1);
@@ -337,12 +337,12 @@ var
   i: integer;
 begin
   iIDX := FFavoriteAccounts.IndexOf(pointer(aAccNum));
-  // Ищем удаляемый аккаунт и удаляем из списка
+  // РС‰РµРј СѓРґР°Р»СЏРµРјС‹Р№ Р°РєРєР°СѓРЅС‚ Рё СѓРґР°Р»СЏРµРј РёР· СЃРїРёСЃРєР°
   if (iIDX <> -1) then
   begin
     FFavoriteAccounts.delete(iIDX);
   end;
-  // После удаления аккаунта из основного массива их номера смещаются на 1, смещаем и тут
+  // РџРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ Р°РєРєР°СѓРЅС‚Р° РёР· РѕСЃРЅРѕРІРЅРѕРіРѕ РјР°СЃСЃРёРІР° РёС… РЅРѕРјРµСЂР° СЃРјРµС‰Р°СЋС‚СЃСЏ РЅР° 1, СЃРјРµС‰Р°РµРј Рё С‚СѓС‚
   for i := 0 to FFavoriteAccounts.Count - 1 do
   begin
     if (integer(FFavoriteAccounts[i]) > aAccNum) then
@@ -374,13 +374,13 @@ end;
 
 procedure TALM.MenuPSWAccounLaunch(Sender: TObject);
 begin
-  // Добавление в избранное
+  // Р”РѕР±Р°РІР»РµРЅРёРµ РІ РёР·Р±СЂР°РЅРЅРѕРµ
   FavoriveAccountsAdd(TMenuItem(Sender).Tag);
-  // Убиваем процессы (апдейтер и рагнарок)
+  // РЈР±РёРІР°РµРј РїСЂРѕС†РµСЃСЃС‹ (Р°РїРґРµР№С‚РµСЂ Рё СЂР°РіРЅР°СЂРѕРє)
   ProcessKill;
-  // Поиск процесса апдейтера с поиском хэндлов в нём
+  // РџРѕРёСЃРє РїСЂРѕС†РµСЃСЃР° Р°РїРґРµР№С‚РµСЂР° СЃ РїРѕРёСЃРєРѕРј С…СЌРЅРґР»РѕРІ РІ РЅС‘Рј
   ProcessFind;
-  // Запускаем выбранный аккаунт
+  // Р—Р°РїСѓСЃРєР°РµРј РІС‹Р±СЂР°РЅРЅС‹Р№ Р°РєРєР°СѓРЅС‚
   ProcessLogin(TMenuItem(Sender).Tag);
 end;
 
@@ -392,13 +392,13 @@ begin
   if (MessageDlg(format(rsAskDeleteAccount, [FAccountData[i].sMenuName, FAccountData[i].sLogin]), mtConfirmation, [mbYes, mbNo], 0) = mrYes) then
   begin
     FavoriveAccountsDelete(iIndex);
-    // Перенос всех старших уккаунтов на 1 позицию вниз
+    // РџРµСЂРµРЅРѕСЃ РІСЃРµС… СЃС‚Р°СЂС€РёС… СѓРєРєР°СѓРЅС‚РѕРІ РЅР° 1 РїРѕР·РёС†РёСЋ РІРЅРёР·
     for I := iIndex to High(FAccountData) - 1 do
     begin
       FAccountData[i] := FAccountData[i + 1];
     end;
     SetLength(FAccountData, High(FAccountData));
-    // Вызов сохранения фойла
+    // Р’С‹Р·РѕРІ СЃРѕС…СЂР°РЅРµРЅРёСЏ С„РѕР№Р»Р°
     DataFileBuild;
   end;
 end;
@@ -408,7 +408,7 @@ var
   iIndex: integer;
 begin
   iIndex := TMenuItem(Sender).Tag;
-  // Если отредактировали аккаунт то сохраняем файл
+  // Р•СЃР»Рё РѕС‚СЂРµРґР°РєС‚РёСЂРѕРІР°Р»Рё Р°РєРєР°СѓРЅС‚ С‚Рѕ СЃРѕС…СЂР°РЅСЏРµРј С„Р°Р№Р»
   if (RecordEdit(FAccountData[iIndex])) then
   begin
     DataFileBuild;
@@ -421,7 +421,7 @@ var
 begin
   finalize(eAccData);
   FillChar(eAccData, SizeOf(eAccData), 0);
-  // Если добавили новый аккаунт то сохланяем файл
+  // Р•СЃР»Рё РґРѕР±Р°РІРёР»Рё РЅРѕРІС‹Р№ Р°РєРєР°СѓРЅС‚ С‚Рѕ СЃРѕС…Р»Р°РЅСЏРµРј С„Р°Р№Р»
   if (RecordEdit(eAccData)) then
   begin
     SetLength(FAccountData, Length(FAccountData) + 1);
@@ -435,20 +435,20 @@ procedure TALM.MenuPSWCreate(Sender: TObject);
 var
   sPSWNew, sPSWPrompt: string;
 begin
-  // Запрашиваем новый пароль
+  // Р—Р°РїСЂР°С€РёРІР°РµРј РЅРѕРІС‹Р№ РїР°СЂРѕР»СЊ
   sPSWNew := InputBox(rsNewPSWRegister, #31 + rsNewPSW, '');
   if (sPSWNew = '') then
   begin
     raise exception.create(rsErrorNewPSWEmptyPSW);
   end;
-  // Запрашиваем новый пароль повторно
+  // Р—Р°РїСЂР°С€РёРІР°РµРј РЅРѕРІС‹Р№ РїР°СЂРѕР»СЊ РїРѕРІС‚РѕСЂРЅРѕ
   sPSWPrompt := InputBox(rsNewPSWRegister, #31 + rsNewPSWPrompt, '');
-  // Если они не совпадают то ошибка
+  // Р•СЃР»Рё РѕРЅРё РЅРµ СЃРѕРІРїР°РґР°СЋС‚ С‚Рѕ РѕС€РёР±РєР°
   if (sPSWNew <> sPSWPrompt) then
   begin
     raise exception.create(rsErrorNewPSWNotEQ);
   end;
-  // Если всё хорошо то устанавливаем пароль, сохраняем файл и меняем режим работы
+  // Р•СЃР»Рё РІСЃС‘ С…РѕСЂРѕС€Рѕ С‚Рѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїР°СЂРѕР»СЊ, СЃРѕС…СЂР°РЅСЏРµРј С„Р°Р№Р» Рё РјРµРЅСЏРµРј СЂРµР¶РёРј СЂР°Р±РѕС‚С‹
   FMasterPSW := sPSWNew;
   DataFileBuild;
   FWorkStage := wsWork;
@@ -460,7 +460,7 @@ var
   sPSW: string;
 begin
   sPSW := InputBox(rsNewPSW, #31 + rsNewPSW, '');
-  // Запрашиваем пароль и пытаемся с ним загрузить данные
+  // Р—Р°РїСЂР°С€РёРІР°РµРј РїР°СЂРѕР»СЊ Рё РїС‹С‚Р°РµРјСЃСЏ СЃ РЅРёРј Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ
   if (sPSW <> '') then
   begin
     DataFileload(sPSW);
@@ -493,19 +493,19 @@ var
     end;
   end;
 begin
-  // Запуск процесса апдейтера
+  // Р—Р°РїСѓСЃРє РїСЂРѕС†РµСЃСЃР° Р°РїРґРµР№С‚РµСЂР°
   ProcessStart;
 
   iCount := 0;
   repeat
     sleep(100);
-    // Поиск хэндла окна по имени с интервалом в 100 мс на протяжении cProcCreateDelaySec секунд
+    // РџРѕРёСЃРє С…СЌРЅРґР»Р° РѕРєРЅР° РїРѕ РёРјРµРЅРё СЃ РёРЅС‚РµСЂРІР°Р»РѕРј РІ 100 РјСЃ РЅР° РїСЂРѕС‚СЏР¶РµРЅРёРё cProcCreateDelaySec СЃРµРєСѓРЅРґ
     hMain := FindWindow(nil, cWindowsName);
     inc(iCount);
   until (hMain <> 0)
      or (iCount * 100 > cProcCreateDelaySec * 1000);
 
-  // Если не нашли окно то ошибка
+  // Р•СЃР»Рё РЅРµ РЅР°С€Р»Рё РѕРєРЅРѕ С‚Рѕ РѕС€РёР±РєР°
   if (hMain = 0) then
   begin
     raise exception.Create(rsErrorLauCantFindWindows);
@@ -514,11 +514,11 @@ begin
   iCount := 0;
   repeat
     sleep(100);
-    // Подготовка массива для хэндлов
+    // РџРѕРґРіРѕС‚РѕРІРєР° РјР°СЃСЃРёРІР° РґР»СЏ С…СЌРЅРґР»РѕРІ
     ProcessPrepare;
-    // Пытаемся извлечь нужные хэндлы
+    // РџС‹С‚Р°РµРјСЃСЏ РёР·РІР»РµС‡СЊ РЅСѓР¶РЅС‹Рµ С…СЌРЅРґР»С‹
     FindNextWnd(GetWindow(hMain, GW_CHILD));
-  until (ProcessCheck) // Проверяем найденный хэндлы
+  until (ProcessCheck) // РџСЂРѕРІРµСЂСЏРµРј РЅР°Р№РґРµРЅРЅС‹Р№ С…СЌРЅРґР»С‹
      or (iCount * 100 > cProcFindHandleDelaySec * 1000);
 
   if (not ProcessCheck) then
@@ -532,7 +532,7 @@ var
   i: integer;
   sTMP: AnsiString;
 begin
-  // Прибиваем по массиву процессов требуемое
+  // РџСЂРёР±РёРІР°РµРј РїРѕ РјР°СЃСЃРёРІСѓ РїСЂРѕС†РµСЃСЃРѕРІ С‚СЂРµР±СѓРµРјРѕРµ
   for i := low(cExeArr) to high(cExeArr) do
   begin
     sTMP := format('taskkill.exe /F /IM %S', [cExeArr[i]]);
@@ -543,7 +543,7 @@ end;
 
 procedure TALM.ProcessLogin(aIndex: integer);
 begin
-  // Отправляем сообщения апдейтеру
+  // РћС‚РїСЂР°РІР»СЏРµРј СЃРѕРѕР±С‰РµРЅРёСЏ Р°РїРґРµР№С‚РµСЂСѓ
   SendMessage(FHWNDArr[0], WM_SETTEXT, length(FAccountData[aIndex].sLogin), cardinal(@FAccountData[aIndex].sLogin[1]));
   SendMessage(FHWNDArr[1], WM_SETTEXT, length(FAccountData[aIndex].sPSW), cardinal(@FAccountData[aIndex].sPSW[1]));
   SendMessage(FHWNDArr[2], BM_CLICK, 0, 0);
@@ -621,7 +621,7 @@ var
   i: integer;
   eMI, eMiSub: TMenuItem;
 begin
-  // Рисуем меню по клику на иконке в трее
+  // Р РёСЃСѓРµРј РјРµРЅСЋ РїРѕ РєР»РёРєСѓ РЅР° РёРєРѕРЅРєРµ РІ С‚СЂРµРµ
   FPopupMenu.Items.Clear;
   AddMenuItem(FPopupMenu.Items, rsMenuNameAbout, MenuAbout);
   AddMenuDelim(FPopupMenu.Items);
@@ -639,7 +639,7 @@ begin
   if (FWorkStage = wsWork) then
   begin
 
-    // Добавление списка часто используемых аккаунтов
+    // Р”РѕР±Р°РІР»РµРЅРёРµ СЃРїРёСЃРєР° С‡Р°СЃС‚Рѕ РёСЃРїРѕР»СЊР·СѓРµРјС‹С… Р°РєРєР°СѓРЅС‚РѕРІ
     if (length(FAccountData) > 0)
       and (FFavoriteAccounts.count > 0)
     then
@@ -651,13 +651,13 @@ begin
       AddMenuDelim(FPopupMenu.Items);
     end;
 
-    // Добавление всех аккаунтов
+    // Р”РѕР±Р°РІР»РµРЅРёРµ РІСЃРµС… Р°РєРєР°СѓРЅС‚РѕРІ
     for i := low(FAccountData) to high(FAccountData) do
     begin
       AddMenuItem(FPopupMenu.Items, FAccountData[i].sMenuName, MenuPSWAccounLaunch, i);
     end;
 
-    // Добавления пункта с настройками аккаунтов
+    // Р”РѕР±Р°РІР»РµРЅРёСЏ РїСѓРЅРєС‚Р° СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё Р°РєРєР°СѓРЅС‚РѕРІ
     if (length(FAccountData) > 0) then
     begin
       AddMenuDelim(FPopupMenu.Items);
@@ -673,7 +673,7 @@ begin
       AddMenuDelim(FPopupMenu.Items);
     end;
 
-    // Добавление кнопки добавления аккаунта
+    // Р”РѕР±Р°РІР»РµРЅРёРµ РєРЅРѕРїРєРё РґРѕР±Р°РІР»РµРЅРёСЏ Р°РєРєР°СѓРЅС‚Р°
     AddMenuItem(FPopupMenu.Items, rsMenuNameAccoundAdd, MenuPSWAccountNew);
   end;
 

@@ -1,4 +1,4 @@
-// Модуль добавления\редактирования аккаунта
+// РњРѕРґСѓР»СЊ РґРѕР±Р°РІР»РµРЅРёСЏ\СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ Р°РєРєР°СѓРЅС‚Р°
 unit ALM_fEdit;
 
 interface
@@ -78,7 +78,7 @@ var
   sErrText: string;
 begin
   sErrText := '';
-  // Проверка полей на заполненность
+  // РџСЂРѕРІРµСЂРєР° РїРѕР»РµР№ РЅР° Р·Р°РїРѕР»РЅРµРЅРЅРѕСЃС‚СЊ
   if (Login = '') then
   begin
     sErrText := sErrText + Format(rsEditFormErrorCheckStringVal, [lbLogin.Caption]);
@@ -103,7 +103,7 @@ end;
 
 procedure TfEdit.eLoginExit(Sender: TObject);
 begin
-  // Если ввели логин и наименование меню пустое то перенести туда логин
+  // Р•СЃР»Рё РІРІРµР»Рё Р»РѕРіРёРЅ Рё РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РјРµРЅСЋ РїСѓСЃС‚РѕРµ С‚Рѕ РїРµСЂРµРЅРµСЃС‚Рё С‚СѓРґР° Р»РѕРіРёРЅ
   if (MenuName = '') then
   begin
     MenuName := login;
