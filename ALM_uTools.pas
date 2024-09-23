@@ -1,4 +1,4 @@
-// Вспомогательный модуль
+﻿// Вспомогательный модуль
 unit ALM_uTools;
 
 interface
@@ -88,6 +88,8 @@ function Encode(aSource, aKey: AnsiString): AnsiString;
 function Decode(aSource, aKey: AnsiString): AnsiString;
 // Выполнить запуск команды или приложения
 function ExecCommand(aCommandLine: string; aIsWaitEnd: boolean): boolean;
+// Сортировка пунктов меню
+procedure SortMenuItem(aMenuItems: TMenuItem; aStartPos: Integer = 0; aEndPos: Integer = 0);
 
 implementation
 
@@ -250,6 +252,40 @@ begin
     end;
   end;
   result := true;
+end;
+
+procedure SortMenuItem(aMenuItems: TMenuItem; aStartPos: Integer = 0; aEndPos: Integer = 0);
+var
+  i: Integer;
+  sl: TStringList;
+begin
+  if (not Assigned(aMenuItems)) then Exit;
+  // Если не указали по какую позицию сортировать, то сортируем до конца
+  if (aEndPos = 0) then
+  begin
+    aEndPos := aMenuItems.Count - 1;
+  end;
+  if (aStartPos >= aEndPos) then Exit;
+  sl := TStringList.Create;
+  try
+    sl.Sorted := true;
+    // Добавляем пункты меню в StringList с сортировкой
+    for i := aStartPos to aEndPos do
+    begin
+      sl.AddObject(aMenuItems[i].Caption, aMenuItems[i]);
+    end;
+
+    // Переназначаем порядок в зависимости от сорртировки
+    for i := 0 to sl.Count - 1 do
+    begin
+      TMenuItem(sl.Objects[i]).MenuIndex := i + aStartPos;
+    end;
+  finally
+    if (assigned(sl)) then
+    begin
+      sl.Free;
+    end;
+  end;
 end;
 
 end.

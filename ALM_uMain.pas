@@ -1,4 +1,4 @@
-// Основной модуль прогрммы для создании иконки системного трея и размещения меню в нём
+﻿// Основной модуль прогрммы для создании иконки системного трея и размещения меню в нём
 unit ALM_uMain;
 
 interface
@@ -28,6 +28,8 @@ type
     FHWNDArr: array of HWND;
     // Массив с часто используемыми аккаунтами
     FFavoriteAccounts: TList;
+    // Открыто ли меню
+    FMenuIsOpen: boolean;
   private
     procedure TrayIconMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -620,7 +622,16 @@ procedure TALM.TrayIconMouseUp(Sender: TObject; Button: TMouseButton;
 var
   i: integer;
   eMI, eMiSub: TMenuItem;
+  iSortPosStart: integer;
+  iSortPosEnd: integer;
 begin
+
+  if (FMenuIsOpen) then
+  begin
+    FPopupMenu.CloseMenu;
+    exit;
+  end;
+
   // Рисуем меню по клику на иконке в трее
   FPopupMenu.Items.Clear;
   AddMenuItem(FPopupMenu.Items, rsMenuNameAbout, MenuAbout);
@@ -651,11 +662,17 @@ begin
       AddMenuDelim(FPopupMenu.Items);
     end;
 
+    // Пункт меню с которого начинаем сортировать
+    iSortPosStart := FPopupMenu.Items.Count;
     // Добавление всех аккаунтов
     for i := low(FAccountData) to high(FAccountData) do
     begin
       AddMenuItem(FPopupMenu.Items, FAccountData[i].sMenuName, MenuPSWAccounLaunch, i);
     end;
+    // Пункт по который сортируем
+    iSortPosEnd := FPopupMenu.Items.Count - 1;
+    // Сортируем аккаунты
+    SortMenuItem(FPopupMenu.Items, iSortPosStart, iSortPosEnd);
 
     // Добавления пункта с настройками аккаунтов
     if (length(FAccountData) > 0) then
@@ -679,7 +696,12 @@ begin
 
   AddMenuDelim(FPopupMenu.Items);
   AddMenuItem(FPopupMenu.Items, rsMenuExit, MenuExit);
-  FPopupMenu.Popup(X, Y);
+  try
+    FMenuIsOpen := true;
+    FPopupMenu.Popup(X, Y);
+  finally
+    FMenuIsOpen := false;
+  end;
 end;
 
 end.
