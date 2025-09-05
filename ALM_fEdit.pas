@@ -1,4 +1,4 @@
-// Модуль добавления\редактирования аккаунта
+﻿// Модуль добавления\редактирования аккаунта
 unit ALM_fEdit;
 
 interface
@@ -22,6 +22,8 @@ type
     eLogin: TEdit;
     eMenuName: TEdit;
     eNote: TEdit;
+    cbHotKey: TComboBox;
+    lbHotkey: TLabel;
     procedure bOKClick(Sender: TObject);
     procedure eLoginExit(Sender: TObject);
   private
@@ -33,6 +35,8 @@ type
     procedure SetMenuName(const Value: string);
     procedure SetNote(const Value: string);
     procedure SetPSW(const Value: string);
+    function GetShortCutKey: integer;
+    procedure SetShortCutKey(const Value: integer);
     { Private declarations }
   public
     { Public declarations }
@@ -40,6 +44,7 @@ type
     property PSW: string read GetPSW write SetPSW;
     property MenuName: string read GetMenuName write SetMenuName;
     property Note: string read GetNote write SetNote;
+    property ShortCutKey: integer read GetShortCutKey write SetShortCutKey;
   end;
 
 var
@@ -52,14 +57,22 @@ implementation
 {$R *.dfm}
 
 function RecordEdit(var aData: TAccountData): boolean;
+var
+  i: integer;
 begin
   result := false;
   with TfEdit.create(application) do
   try
+    cbHotKey.Clear;
+    for i := low(cKeyMap) + 1 to high(cKeyMap) do
+    begin
+      cbHotKey.items.Add(GetKeyInfo(i));
+    end;
     login := aData.sLogin;
     PSW := aData.sPSW;
     MenuName := aData.sMenuName;
     Note := aData.sNote;
+    ShortCutKey := aData.iShortCutKey;
     result := (ShowModal = mrOK);
     if (result) then
     begin
@@ -67,6 +80,7 @@ begin
       aData.sPSW := PSW;
       aData.sMenuName := MenuName;
       aData.sNote := Note;
+      aData.iShortCutKey := ShortCutKey;
     end;
   finally
     free;
@@ -130,6 +144,11 @@ begin
   result := ePSW.text;
 end;
 
+function TfEdit.GetShortCutKey: integer;
+begin
+  result := cbHotKey.ItemIndex;
+end;
+
 procedure TfEdit.SetLogin(const Value: string);
 begin
   eLogin.text := Value;
@@ -148,6 +167,11 @@ end;
 procedure TfEdit.SetPSW(const Value: string);
 begin
   ePSW.text := Value;
+end;
+
+procedure TfEdit.SetShortCutKey(const Value: integer);
+begin
+  cbHotKey.ItemIndex := Value;
 end;
 
 end.

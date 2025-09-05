@@ -9,6 +9,7 @@ uses
   vcl.menus,
   System.Classes,
   ALM_uTools,
+  Winapi.Messages,
   winapi.Windows,
   System.UITypes;
 
@@ -49,6 +50,8 @@ type
     procedure MenuPSWAccountDelete(Sender: TObject);
     // Пункт меню "О программе"
     procedure MenuAbout(Sender: TObject);
+    // Пункт меню "Перебор всех аккаунтов"
+    procedure MenuProcessLoginAll(Sender: TObject);
     // Проверка на наличие файла с настройками
     function GetIsHaveFile: boolean;
     // Проверка на введённый мастер пароль
@@ -65,7 +68,8 @@ type
     procedure ProcessFind;
     // Проверка на предмет наличия всех хендлов
     function ProcessCheck: boolean;
-    // Запуск выбранного аккаунта
+    procedure ProcessLauAccount(aIndex: integer; aIsAddFavorite: boolean = true);
+    // Ввод данных аккаунта
     procedure ProcessLogin(aIndex: integer);
     // Подготовка массива хэндлов
     procedure ProcessPrepare;
@@ -75,6 +79,16 @@ type
     procedure FavoriveAccountsDelete(aAccNum: integer);
     // Получить закодированный пароль
     function GetEncodePSW(aMasterPSW, aSol: string; aVersion: integer = 1): string;
+    // Згрузить параметры
+    procedure LoadParams;
+    // Зарегистрировать глобальные клавиши
+    procedure HotKeysRegister;
+    // Освободить глобальные клавиши
+    procedure HotKeysFree;
+    // Обработчик сообщений (для горячих кнопок)
+    procedure AppMessage(var Msg: TMsg; var Handled: Boolean);
+    // Установка горячей кнопки в массив
+    procedure ArrSetHotKey(iKey, iPos: integer);
   public
     // Проверка этапа
     procedure CheckStage;
@@ -101,8 +115,8 @@ uses
   xml.XMLDoc,
   Vcl.Controls,
   ShellApi,
-  Messages,
-  ALM_fEdit;
+  ALM_fEdit,
+  System.RegularExpressions;
 
 procedure TALM.DataFileBuild;
 var
@@ -126,6 +140,7 @@ begin
       eXMLNode.AddChild('S_LOGIN').Text := FAccountData[i].sLogin;
       eXMLNode.AddChild('S_PSW').Text := FAccountData[i].sPSW;
       eXMLNode.AddChild('S_NOTE').Text := FAccountData[i].sNote;
+      eXMLNode.AddChild('S_HOTKEY').Text := IntToStr(FAccountData[i].iShortCutKey);
     end;
 
     sXML := '';
@@ -238,6 +253,8 @@ begin
         sLogin    := ChildNodes['S_LOGIN'].text;
         sPSW      := ChildNodes['S_PSW'].text;
         sNote     := ChildNodes['S_NOTE'].text;
+        iShortCutKey := StrToIntDef(ChildNodes['S_HOTKEY'].text, 0);
+        ArrSetHotKey(iShortCutKey, iIDX);
       end;
     end;
 
@@ -253,6 +270,53 @@ begin
       //TXMLDocument(eXMLDoc).free;
     end;
 
+  end;
+end;
+
+procedure TALM.AppMessage(var Msg: TMsg; var Handled: Boolean);
+var
+  i, iIndex: integer;
+begin
+  if (MSG.wParam  >= cHotkeyIdBase - 1)
+    and (MSG.wParam  <= high(cKeyMap) + cHotkeyIdBase)
+  then
+  begin
+    iIndex := MSG.wParam - cHotkeyIdBase;
+    if (iIndex = -1) then
+    begin
+      if (FFavoriteAccounts.Count > 0) then
+      begin
+        ProcessLauAccount(integer(FFavoriteAccounts[0]), false);
+      end;
+    end else
+    begin
+      for i := low(FAccountData) to high(FAccountData) do
+      begin
+        if (FAccountData[i].iShortCutKey = iIndex) then
+        begin
+          ProcessLauAccount(i);
+          break;
+        end;
+      end;
+    end;
+    Handled := True;
+  end;
+end;
+
+procedure TALM.ArrSetHotKey(iKey, iPos: integer);
+var
+ i: integer;
+begin
+  FAccountData[iPos].iShortCutKey := ikey;
+  if (iKey = 0) then exit;
+  for i := low(FAccountData) to high(FAccountData) do
+  begin
+    if (FAccountData[i].iShortCutKey = ikey)
+      and (iPos <> i)
+    then
+    begin
+      FAccountData[i].iShortCutKey := 0;
+    end;
   end;
 end;
 
@@ -293,10 +357,14 @@ begin
   FTrayIcon.OnMouseUp := TrayIconMouseUp;
   FFavoriteAccounts := TList.create;
   SetLength(FAccountData, 0);
+  application.OnMessage := AppMessage;
+  HotKeysFree;
+  HotKeysRegister;
 end;
 
 destructor TALM.Destroy;
 begin
+  HotKeysFree;
   SetLength(FAccountData, 0);
   if (assigned(FFavoriteAccounts)) then
   begin
@@ -374,16 +442,73 @@ begin
   result := FMasterPSW <> '';
 end;
 
+procedure TALM.HotKeysFree;
+var
+  i: Integer;
+begin
+  for i := low(cKeyMap) to high(cKeyMap) do
+  begin
+    if (i = 0) then continue;
+    UnregisterHotKey(application.Handle, cHotkeyIdBase + i);
+  end;
+end;
+
+procedure TALM.HotKeysRegister;
+var
+  i: Integer;
+begin
+  for i := low(cKeyMap) to high(cKeyMap) do
+  begin
+    if (i = 0) then continue;
+    // Регистрируем Ctrl + Alt + Key (0–9)
+    RegisterHotKey(application.Handle, cHotkeyIdBase + i, cKeyMap[i].iModifier, cKeyMap[i].iVKCode);
+  end;
+end;
+
+procedure TALM.LoadParams;
+var
+  i: integer;
+  vMatch: TMatch;
+begin
+  for i := 1 to ParamCount do
+  begin
+    vMatch := TRegEx.Match(ParamStr(i), 'psw=(.+)');
+    if (vMatch.Success) then
+    begin
+      FMasterPSW := vMatch.Groups[1].Value;
+    end;
+  end;
+  try
+    CheckStage;
+  except
+    on e:exception do
+    begin
+      showmessage(e.message);
+    end;
+  end;
+end;
+
+procedure TALM.MenuProcessLoginAll(Sender: TObject);
+var
+  i: integer;
+begin
+  if (MessageDlg(rsAskProcessLoginAll, mtConfirmation, [mbYes, mbNo], 0) = mrYes) then
+  begin
+    for i := low(FAccountData) to high(FAccountData) do
+    begin
+      // Запускаем выбранный аккаунт
+      ProcessLauAccount(i, false);
+      sleep(cDelayAccSwitch * 1000);
+    end;
+    ProcessKill;
+    ShowMessage(rsProcessLoginAllFinish);
+  end;
+end;
+
 procedure TALM.MenuPSWAccounLaunch(Sender: TObject);
 begin
-  // Добавление в избранное
-  FavoriveAccountsAdd(TMenuItem(Sender).Tag);
-  // Убиваем процессы (апдейтер и рагнарок)
-  ProcessKill;
-  // Поиск процесса апдейтера с поиском хэндлов в нём
-  ProcessFind;
   // Запускаем выбранный аккаунт
-  ProcessLogin(TMenuItem(Sender).Tag);
+  ProcessLauAccount(TMenuItem(Sender).Tag);
 end;
 
 procedure TALM.MenuPSWAccountDelete(Sender: TObject);
@@ -391,7 +516,7 @@ var
   iIndex, i: integer;
 begin
   iIndex := TMenuItem(Sender).Tag;
-  if (MessageDlg(format(rsAskDeleteAccount, [FAccountData[i].sMenuName, FAccountData[i].sLogin]), mtConfirmation, [mbYes, mbNo], 0) = mrYes) then
+  if (MessageDlg(format(rsAskDeleteAccount, [FAccountData[iIndex].sMenuName, FAccountData[iIndex].sLogin]), mtConfirmation, [mbYes, mbNo], 0) = mrYes) then
   begin
     FavoriveAccountsDelete(iIndex);
     // Перенос всех старших уккаунтов на 1 позицию вниз
@@ -413,6 +538,7 @@ begin
   // Если отредактировали аккаунт то сохраняем файл
   if (RecordEdit(FAccountData[iIndex])) then
   begin
+    ArrSetHotKey(FAccountData[iIndex].iShortCutKey, iIndex);
     DataFileBuild;
   end;
 end;
@@ -428,6 +554,7 @@ begin
   begin
     SetLength(FAccountData, Length(FAccountData) + 1);
     FAccountData[high(FAccountData)] := eAccData;
+    ArrSetHotKey(FAccountData[high(FAccountData)].iShortCutKey, high(FAccountData));
     DataFileBuild;
   end;
 
@@ -543,6 +670,21 @@ begin
   end;
 end;
 
+procedure TALM.ProcessLauAccount(aIndex: integer; aIsAddFavorite: boolean);
+begin
+  if (aIsAddFavorite) then
+  begin
+    // Добавление в избранное
+    FavoriveAccountsAdd(aIndex);
+  end;
+  // Убиваем процессы (апдейтер и рагнарок)
+  ProcessKill;
+  // Поиск процесса апдейтера с поиском хэндлов в нём
+  ProcessFind;
+  // Вставляем данные аккаунта и входим в игру
+  ProcessLogin(aIndex);
+end;
+
 procedure TALM.ProcessLogin(aIndex: integer);
 begin
   // Отправляем сообщения апдейтеру
@@ -585,7 +727,6 @@ end;
 
 procedure TALM.MenuAbout(Sender: TObject);
 begin
-
   MessageBox(
     0,
     pchar(
@@ -606,14 +747,14 @@ end;
 procedure TALM.Start;
 begin
   FWorkStage := wsNeedFile;
-  while True do
-  begin
-    sleep(50);
-    application.ProcessMessages;
-    if (application.Terminated) then
-    begin
-      break;
-    end;
+  LoadParams;
+  try
+    repeat
+      sleep(50);
+      application.ProcessMessages;
+    until application.Terminated;
+  finally
+
   end;
 end;
 
@@ -625,82 +766,99 @@ var
   iSortPosStart: integer;
   iSortPosEnd: integer;
 begin
-
-  if (FMenuIsOpen) then
-  begin
-    FPopupMenu.CloseMenu;
-    exit;
-  end;
-
-  // Рисуем меню по клику на иконке в трее
-  FPopupMenu.Items.Clear;
-  AddMenuItem(FPopupMenu.Items, rsMenuNameAbout, MenuAbout);
-  AddMenuDelim(FPopupMenu.Items);
-  CheckStage;
-  if (FWorkStage = wsNeedFile) then
-  begin
-    AddMenuItem(FPopupMenu.Items, rsMenuPSWNew, MenuPSWCreate);
-  end;
-
-  if (FWorkStage = wsNeedPSW) then
-  begin
-    AddMenuItem(FPopupMenu.Items, rsMenuPSWEnter, MenuPSWEnter);
-  end;
-
-  if (FWorkStage = wsWork) then
-  begin
-
-    // Добавление списка часто используемых аккаунтов
-    if (length(FAccountData) > 0)
-      and (FFavoriteAccounts.count > 0)
-    then
+  try
+    if (FMenuIsOpen) then
     begin
-      for i := 0 to FFavoriteAccounts.count - 1 do
+      FPopupMenu.CloseMenu;
+      exit;
+    end;
+
+    // Рисуем меню по клику на иконке в трее
+    FPopupMenu.Items.Clear;
+    AddMenuItem(FPopupMenu.Items, rsMenuNameAbout, MenuAbout);
+    AddMenuDelim(FPopupMenu.Items);
+    CheckStage;
+    if (FWorkStage = wsNeedFile) then
+    begin
+      AddMenuItem(FPopupMenu.Items, rsMenuPSWNew, MenuPSWCreate);
+    end;
+
+    if (FWorkStage = wsNeedPSW) then
+    begin
+      AddMenuItem(FPopupMenu.Items, rsMenuPSWEnter, MenuPSWEnter);
+    end;
+
+    if (FWorkStage = wsWork) then
+    begin
+
+      // Добавление списка часто используемых аккаунтов
+      if (length(FAccountData) > 0)
+        and (FFavoriteAccounts.count > 0)
+      then
       begin
-        AddMenuItem(FPopupMenu.Items, FAccountData[integer(FFavoriteAccounts[i])].sMenuName, MenuPSWAccounLaunch, integer(FFavoriteAccounts[i]));
+        for i := 0 to FFavoriteAccounts.count - 1 do
+        begin
+          AddMenuItem(
+            FPopupMenu.Items,
+            FAccountData[integer(FFavoriteAccounts[i])].sMenuName,
+            MenuPSWAccounLaunch,
+            integer(FFavoriteAccounts[i]),
+            '',
+            FAccountData[integer(FFavoriteAccounts[i])].iShortCutKey
+            );
+        end;
+        AddMenuDelim(FPopupMenu.Items);
       end;
-      AddMenuDelim(FPopupMenu.Items);
-    end;
 
-    // Пункт меню с которого начинаем сортировать
-    iSortPosStart := FPopupMenu.Items.Count;
-    // Добавление всех аккаунтов
-    for i := low(FAccountData) to high(FAccountData) do
-    begin
-      AddMenuItem(FPopupMenu.Items, FAccountData[i].sMenuName, MenuPSWAccounLaunch, i);
-    end;
-    // Пункт по который сортируем
-    iSortPosEnd := FPopupMenu.Items.Count - 1;
-    // Сортируем аккаунты
-    SortMenuItem(FPopupMenu.Items, iSortPosStart, iSortPosEnd);
-
-    // Добавления пункта с настройками аккаунтов
-    if (length(FAccountData) > 0) then
-    begin
-      AddMenuDelim(FPopupMenu.Items);
-      eMI := AddMenuItem(FPopupMenu.Items, rsMenuNameSetup, nil);
-
+      // Пункт меню с которого начинаем сортировать
+      iSortPosStart := FPopupMenu.Items.Count;
+      // Добавление всех аккаунтов
       for i := low(FAccountData) to high(FAccountData) do
       begin
-        eMiSub := AddMenuItem(eMI, FAccountData[i].sMenuName, nil);
-        AddMenuInfo(eMiSub, FAccountData[i].sNote);
-        AddMenuItem(eMiSub, rsMenuNameEdit, MenuPSWAccountEdit, i);
-        AddMenuItem(eMiSub,rsMenuNameDelete, MenuPSWAccountDelete, i);
+        AddMenuItem(FPopupMenu.Items, FAccountData[i].sMenuName, MenuPSWAccounLaunch, i, '', FAccountData[i].iShortCutKey);
       end;
-      AddMenuDelim(FPopupMenu.Items);
+      // Пункт по который сортируем
+      iSortPosEnd := FPopupMenu.Items.Count - 1;
+      // Сортируем аккаунты
+      SortMenuItem(FPopupMenu.Items, iSortPosStart, iSortPosEnd);
+
+      // Добавления пункта с настройками аккаунтов
+      if (length(FAccountData) > 0) then
+      begin
+        AddMenuDelim(FPopupMenu.Items);
+        eMI := AddMenuItem(FPopupMenu.Items, rsMenuNameSetup, nil);
+
+        for i := low(FAccountData) to high(FAccountData) do
+        begin
+          eMiSub := AddMenuItem(eMI, FAccountData[i].sMenuName, nil);
+          AddMenuInfo(eMiSub, FAccountData[i].sNote);
+          AddMenuItem(eMiSub, rsMenuNameEdit, MenuPSWAccountEdit, i);
+          AddMenuItem(eMiSub,rsMenuNameDelete, MenuPSWAccountDelete, i);
+        end;
+        AddMenuDelim(FPopupMenu.Items);
+        // Сортируем аккаунты в меню настройки
+        SortMenuItem(eMI);
+        // Добавление кнопки "Перебор всех аккаунтов"
+        AddMenuItem(FPopupMenu.Items, rsMenuNameMenuProcessLoginAll, MenuProcessLoginAll);
+        AddMenuDelim(FPopupMenu.Items);
+      end;
+      // Добавление кнопки добавления аккаунта
+      AddMenuItem(FPopupMenu.Items, rsMenuNameAccoundAdd, MenuPSWAccountNew);
     end;
 
-    // Добавление кнопки добавления аккаунта
-    AddMenuItem(FPopupMenu.Items, rsMenuNameAccoundAdd, MenuPSWAccountNew);
-  end;
-
-  AddMenuDelim(FPopupMenu.Items);
-  AddMenuItem(FPopupMenu.Items, rsMenuExit, MenuExit);
-  try
-    FMenuIsOpen := true;
-    FPopupMenu.Popup(X, Y);
-  finally
-    FMenuIsOpen := false;
+    AddMenuDelim(FPopupMenu.Items);
+    AddMenuItem(FPopupMenu.Items, rsMenuExit, MenuExit);
+    try
+      FMenuIsOpen := true;
+      FPopupMenu.Popup(X, Y);
+    finally
+      FMenuIsOpen := false;
+    end;
+  except
+    on e:exception do
+    begin
+      showmessage(e.message);
+    end;
   end;
 end;
 

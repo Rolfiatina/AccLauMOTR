@@ -26,13 +26,18 @@ resourcestring
   rsMenuNameEdit = 'Редактировать';
   rsMenuNameDelete = 'Удалить';
   rsMenuNameAbout = 'Account Launcher MOTR (О программе)';
+  rsMenuNameMenuProcessLoginAll = 'Перебор всех аккаунтов';
   rsEditFormErrorCaption = 'При сохранении обнаружены следующие ошибки:'#13#10;
   rsEditFormErrorCheckStringVal = '- значение поля "%S" не должно быть пустым;'#13#10;
   rsAskDeleteAccount = 'Действительно удалить "%S" (%S)?';
+  rsAskProcessLoginAll = 'Вы действительно желаете выполнить вход поочереди'#13#10+
+                         'на всех аккаунтах и тем самым обновить месячную авторизацию'#13#10+
+                         'для возможности входа без проверочного кода на почтовый ящик?';
+  rsProcessLoginAllFinish = 'Перебор аккаунтов завершён';
   rsAboutCaption = 'О программе';
   rsAboutBodyDev = 'Разработчик: Rolfiatina';
   rsAboutBodyTarget = 'Назначение: Возможность быстрого входа в игру'#13#10'по сохранённому ранее аккаунту';
-  rsAboutBodyVersion = 'Version: %S год 2024';
+  rsAboutBodyVersion = 'Version: %S год 2025';
   rsAboutBodyTG = 'Telegram: t.me/rolfiatina';
   rsAboutBodyGitHub = 'GitHub: github.com/rolfiatina';
 
@@ -53,10 +58,20 @@ const
   cProcFindHandleDelaySec = 10;
   // Максимальное количество списка часто используемых аккаунтов
   cFavoriveAccountsCountMax = 7;
-  // Часть ключа для шифрования
-  cSKey = '10995ffce16d34539b629267a779e57b';
   // Количиство возможных подходов по шифрованию
   cCountAlg = 2;
+  // Задержка в секундах между запуском аккаунтов для их перебора
+  cDelayAccSwitch = 4;
+  // Стартовый код по глобальным клавишам
+  cHotkeyIdBase = 600;
+
+  // Часть ключа для шифрования
+  {$IFDEF MAINKEY}
+    {$I KeyPrivate.inc}
+  {$ELSE}
+    {$I KeyPublic.inc}
+  {$ENDIF}
+
 type
   // Массив состояний программы: Требуется файл с настройками, требуется ввод пароля, основной режим работы
   TWorkStage = (wsNeedFile, wsNeedPSW, wsWork);
@@ -68,10 +83,33 @@ type
     sLogin: string;
     sPSW: string;
     sNote: string;
+    iShortCutKey: integer;
   end;
 
+type
+  TKeyInfo = record
+    iVKCode: Byte;       // Виртуальный код клавиши
+    sKeyText: string;    // Текстовое представление
+    iModifier: Byte;     // Флаг: 1=Ctrl, 2=Alt, 4=Shift
+  end;
+
+const
+  cKeyMap: array[-1..9] of TKeyInfo = (
+    (iVKCode: $30; sKeyText: '0'; iModifier: 1 or 2),
+    (iVKCode: 0; sKeyText: 'Пусто'; iModifier: 0),
+    (iVKCode: $31; sKeyText: '1'; iModifier: 1 or 2),
+    (iVKCode: $32; sKeyText: '2'; iModifier: 1 or 2),
+    (iVKCode: $33; sKeyText: '3'; iModifier: 1 or 2),
+    (iVKCode: $34; sKeyText: '4'; iModifier: 1 or 2),
+    (iVKCode: $35; sKeyText: '5'; iModifier: 1 or 2),
+    (iVKCode: $36; sKeyText: '6'; iModifier: 1 or 2),
+    (iVKCode: $37; sKeyText: '7'; iModifier: 1 or 2),
+    (iVKCode: $38; sKeyText: '8'; iModifier: 1 or 2),
+    (iVKCode: $39; sKeyText: '9'; iModifier: 1 or 2)
+  );
+
 // Добавление обычного пункта меню выпадающего списка
-function AddMenuItem(aMItem: TMenuItem; aTitle: String; aEvent: TNotifyEvent; aTag: integer = 0; aHint: string = ''): TMenuItem;
+function AddMenuItem(aMItem: TMenuItem; aTitle: String; aEvent: TNotifyEvent; aTag: integer = 0; aHint: string = ''; aShotCutIndex: integer = 0): TMenuItem;
 // Добавление разделителя между пунктами меню
 procedure AddMenuDelim(aMItem: TMenuItem);
 // Добавления пунта меню с описанием аккаунта
@@ -91,6 +129,8 @@ function ExecCommand(aCommandLine: string; aIsWaitEnd: boolean): boolean;
 // Сортировка пунктов меню
 procedure SortMenuItem(aMenuItems: TMenuItem; aStartPos: Integer = 0; aEndPos: Integer = 0);
 
+function GetKeyInfo(aIndex: integer; aIsLong: boolean = true): string;
+
 implementation
 
 uses
@@ -101,7 +141,29 @@ uses
   vcl.Forms,
   winapi.Windows;
 
-function AddMenuItem(aMItem: TMenuItem; aTitle: String; aEvent: TNotifyEvent; aTag: integer = 0; aHint: string = ''): TMenuItem;
+function GetKeyInfo(aIndex: integer; aIsLong: boolean = true): string;
+var
+  eInfo: TKeyInfo;
+begin
+  eInfo := cKeyMap[aIndex];
+  result := '';
+  if (aIsLong) then
+  begin
+    if (eInfo.iModifier and 1) <> 0 then result := result + 'Ctrl+';
+    if (eInfo.iModifier and 2) <> 0 then result := result + 'Alt+';
+    if (eInfo.iModifier and 4) <> 0 then result := result + 'Shift+';
+  end else
+  begin
+    if (eInfo.iModifier and 1) <> 0 then result := result + 'C+';
+    if (eInfo.iModifier and 2) <> 0 then result := result + 'A+';
+    if (eInfo.iModifier and 4) <> 0 then result := result + 'S+';
+  end;
+  result := result + eInfo.sKeyText;
+end;
+
+function AddMenuItem(aMItem: TMenuItem; aTitle: String; aEvent: TNotifyEvent; aTag: integer = 0; aHint: string = ''; aShotCutIndex: integer = 0): TMenuItem;
+var
+  eSC: TShortCut;
 begin
   Result := TMenuItem.Create(aMItem);
   with Result do
@@ -111,6 +173,11 @@ begin
     OnClick := aEvent;
     Tag     := aTag;
     Hint    := aHint;
+    if (aShotCutIndex <> 0) then
+    begin
+      eSC := TextToShortCut(GetKeyInfo(aShotCutIndex));
+      ShortCut := eSC;
+    end;
   except
     Free;
     raise;

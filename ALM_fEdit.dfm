@@ -3,7 +3,7 @@ object fEdit: TfEdit
   Top = 0
   BorderStyle = bsDialog
   Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1079#1072#1087#1080#1089#1080
-  ClientHeight = 212
+  ClientHeight = 220
   ClientWidth = 329
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,11 +15,12 @@ object fEdit: TfEdit
   TextHeight = 15
   object pButton: TPanel
     Left = 0
-    Top = 171
+    Top = 179
     Width = 329
     Height = 41
     Align = alBottom
     TabOrder = 1
+    ExplicitTop = 171
     DesignSize = (
       329
       41)
@@ -48,9 +49,10 @@ object fEdit: TfEdit
     Left = 0
     Top = 0
     Width = 329
-    Height = 171
+    Height = 179
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 171
     object lbMenuName: TLabel
       Left = 5
       Top = 66
@@ -78,6 +80,13 @@ object fEdit: TfEdit
       Width = 55
       Height = 15
       Caption = #1054#1087#1080#1089#1072#1085#1080#1077
+    end
+    object lbHotkey: TLabel
+      Left = 5
+      Top = 149
+      Width = 113
+      Height = 15
+      Caption = #1043#1086#1088#1103#1095#1072#1103' '#1082#1085#1086#1087#1082#1072
     end
     object ePSW: TEdit
       Left = 144
@@ -108,6 +117,14 @@ object fEdit: TfEdit
       Width = 315
       Height = 23
       TabOrder = 3
+    end
+    object cbHotKey: TComboBox
+      Left = 104
+      Top = 146
+      Width = 216
+      Height = 23
+      Style = csDropDownList
+      TabOrder = 4
     end
   end
 end
