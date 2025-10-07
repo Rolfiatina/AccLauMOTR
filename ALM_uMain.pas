@@ -116,6 +116,10 @@ uses
   Vcl.Controls,
   ShellApi,
   ALM_fEdit,
+{$IFDEF DEBUGLOG}
+  SYS_fDebug,
+{$ENDIF}
+  Math,
   System.RegularExpressions;
 
 procedure TALM.DataFileBuild;
@@ -276,12 +280,25 @@ end;
 procedure TALM.AppMessage(var Msg: TMsg; var Handled: Boolean);
 var
   i, iIndex: integer;
+  sTmp: string;
 begin
   if (MSG.wParam  >= cHotkeyIdBase - 1)
     and (MSG.wParam  <= high(cKeyMap) + cHotkeyIdBase)
   then
   begin
-    iIndex := MSG.wParam - cHotkeyIdBase;
+    iIndex := integer(MSG.wParam) - cHotkeyIdBase;
+{$IFDEF DEBUGLOG}
+    stmp := format('Index=%D;IsPressCtrl=%D;IsPressAlt=%D;IsPressShift=%D;IsPressedKey=%D;Combonation=%S',
+      [iIndex,
+      ifthen((GetAsyncKeyState(VK_CONTROL) and $8000) > 0, 1, 0),
+      ifthen((GetAsyncKeyState(VK_MENU) and $8000) > 0, 1, 0),
+      ifthen((GetAsyncKeyState(VK_SHIFT) and $8000) > 0, 1, 0),
+      ifthen((GetAsyncKeyState(cKeyMap[iIndex].iVKCode) and $8000) > 0, 1, 0),
+      GetAsyncKeyState(cKeyMap[iIndex].iVKCode) and $8000,
+      GetKeyInfo(iIndex)
+      ]);
+    WriteLog(stmp);
+{$ENDIF}
     if (iIndex = -1) then
     begin
       if (FFavoriteAccounts.Count > 0) then

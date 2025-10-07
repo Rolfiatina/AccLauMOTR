@@ -90,22 +90,22 @@ type
   TKeyInfo = record
     iVKCode: Byte;       // Виртуальный код клавиши
     sKeyText: string;    // Текстовое представление
-    iModifier: Byte;     // Флаг: 1=Ctrl, 2=Alt, 4=Shift
+    iModifier: Byte;     // Флаг: 1=Alt, 2=Ctrl, 4=Shift
   end;
 
 const
   cKeyMap: array[-1..9] of TKeyInfo = (
-    (iVKCode: $30; sKeyText: '0'; iModifier: 1 or 2),
+    (iVKCode: $30; sKeyText: '0'; iModifier: 2 or 4),
     (iVKCode: 0; sKeyText: 'Пусто'; iModifier: 0),
-    (iVKCode: $31; sKeyText: '1'; iModifier: 1 or 2),
-    (iVKCode: $32; sKeyText: '2'; iModifier: 1 or 2),
-    (iVKCode: $33; sKeyText: '3'; iModifier: 1 or 2),
-    (iVKCode: $34; sKeyText: '4'; iModifier: 1 or 2),
-    (iVKCode: $35; sKeyText: '5'; iModifier: 1 or 2),
-    (iVKCode: $36; sKeyText: '6'; iModifier: 1 or 2),
-    (iVKCode: $37; sKeyText: '7'; iModifier: 1 or 2),
-    (iVKCode: $38; sKeyText: '8'; iModifier: 1 or 2),
-    (iVKCode: $39; sKeyText: '9'; iModifier: 1 or 2)
+    (iVKCode: $31; sKeyText: '1'; iModifier: 2 or 4),
+    (iVKCode: $32; sKeyText: '2'; iModifier: 2 or 4),
+    (iVKCode: $33; sKeyText: '3'; iModifier: 2 or 4),
+    (iVKCode: $34; sKeyText: '4'; iModifier: 2 or 4),
+    (iVKCode: $35; sKeyText: '5'; iModifier: 2 or 4),
+    (iVKCode: $36; sKeyText: '6'; iModifier: 2 or 4),
+    (iVKCode: $37; sKeyText: '7'; iModifier: 2 or 4),
+    (iVKCode: $38; sKeyText: '8'; iModifier: 2 or 4),
+    (iVKCode: $39; sKeyText: '9'; iModifier: 2 or 4)
   );
 
 // Добавление обычного пункта меню выпадающего списка
@@ -149,13 +149,13 @@ begin
   result := '';
   if (aIsLong) then
   begin
-    if (eInfo.iModifier and 1) <> 0 then result := result + 'Ctrl+';
-    if (eInfo.iModifier and 2) <> 0 then result := result + 'Alt+';
+    if (eInfo.iModifier and 1) <> 0 then result := result + 'Alt+';
+    if (eInfo.iModifier and 2) <> 0 then result := result + 'Ctrl+';
     if (eInfo.iModifier and 4) <> 0 then result := result + 'Shift+';
   end else
   begin
-    if (eInfo.iModifier and 1) <> 0 then result := result + 'C+';
-    if (eInfo.iModifier and 2) <> 0 then result := result + 'A+';
+    if (eInfo.iModifier and 1) <> 0 then result := result + 'A+';
+    if (eInfo.iModifier and 2) <> 0 then result := result + 'C+';
     if (eInfo.iModifier and 4) <> 0 then result := result + 'S+';
   end;
   result := result + eInfo.sKeyText;

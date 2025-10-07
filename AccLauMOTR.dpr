@@ -5,6 +5,9 @@ uses
   vcl.Dialogs,
   ALM_uMain in 'ALM_uMain.pas',
   ALM_uTools in 'ALM_uTools.pas',
+{$IFDEF DEBUGLOG}
+  SYS_fDebug in 'SYS_fDebug.pas' {fDebug},
+{$ENDIF}
   ALM_fEdit in 'ALM_fEdit.pas' {fEdit};
 
 {$R *.res}
@@ -12,7 +15,7 @@ uses
 begin
   Application.Initialize;
   Application.Title := 'Account Launcher MOTR';
-  Application.Run;
+  //Application.Run;
   with TALM.Create do
   try
     start;
